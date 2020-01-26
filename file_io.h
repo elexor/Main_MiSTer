@@ -9,8 +9,11 @@
 
 struct fileZipArchive;
 
-typedef struct
+struct fileTYPE
 {
+	fileTYPE();
+	int opened();
+
 	FILE           *filp;
 	int             mode;
 	int             type;
@@ -19,13 +22,20 @@ typedef struct
 	__off64_t       offset;
 	char            path[1024];
 	char            name[261];
-}  fileTYPE;
+};
+
+struct direntext_t
+{
+	dirent de;
+	int  cookie;
+	char altname[256];
+};
 
 int flist_nDirEntries();
 int flist_iFirstEntry();
 int flist_iSelectedEntry();
-dirent* flist_DirItem(int n);
-dirent* flist_SelectedItem();
+direntext_t* flist_DirItem(int n);
+direntext_t* flist_SelectedItem();
 
 // scanning flags
 #define SCANF_INIT       0 // start search from beginning of directory
@@ -40,13 +50,16 @@ dirent* flist_SelectedItem();
 #define SCANO_DIR        1 // include subdirectories
 #define SCANO_UMOUNT     2 // allow backspace key
 #define SCANO_CORES      4 // only include subdirectories with prefix '_'
-#define SCANO_COEFF      8
+#define SCANO_TXT        8
+#define SCANO_NEOGEO     16
+#define SCANO_NOENTER    32
 
 void FindStorage();
 int  getStorage(int from_setting);
 void setStorage(int dev);
 int  isUSBMounted();
 
+int  FileOpenZip(fileTYPE *file, const char *name, uint32_t crc32);
 int  FileOpenEx(fileTYPE *file, const char *name, int mode, char mute = 0);
 int  FileOpen(fileTYPE *file, const char *name, char mute = 0);
 void FileClose(fileTYPE *file);
@@ -60,27 +73,38 @@ int FileReadAdv(fileTYPE *file, void *pBuffer, int length);
 int FileReadSec(fileTYPE *file, void *pBuffer);
 int FileWriteAdv(fileTYPE *file, void *pBuffer, int length);
 int FileWriteSec(fileTYPE *file, void *pBuffer);
+void FileCreatePath(const char *dir);
 
 int FileExists(const char *name);
 int FileCanWrite(const char *name);
+int PathIsDir(const char *name);
 
 #define SAVE_DIR "saves"
 void FileGenerateSavePath(const char *name, char* out_name);
+
+#define SAVESTATE_DIR "savestates"
+void FileGenerateSavestatePath(const char *name, char* out_name);
 
 #define SCREENSHOT_DIR "screenshots"
 #define SCREENSHOT_DEFAULT "screen"
 void FileGenerateScreenshotName(const char *name, char *out_name, int buflen);
 
-int FileSave(const char *name, void *pBuffer, int size, int sys = 0);
-int FileLoad(const char *name, void *pBuffer, int size, int sys = 0); // supply pBuffer = 0 to get the file size without loading
+int FileSave(const char *name, void *pBuffer, int size);
+int FileLoad(const char *name, void *pBuffer, int size); // supply pBuffer = 0 to get the file size without loading
 
 //save/load from config dir
 #define CONFIG_DIR "config"
 int FileSaveConfig(const char *name, void *pBuffer, int size);
 int FileLoadConfig(const char *name, void *pBuffer, int size); // supply pBuffer = 0 to get the file size without loading
+int FileSaveJoymap(const char *name, void *pBuffer, int size);
+int FileLoadJoymap(const char *name, void *pBuffer, int size); // supply pBuffer = 0 to get the file size without loading
+
 
 void AdjustDirectory(char *path);
 int ScanDirectory(char* path, int mode, const char *extension, int options, const char *prefix = NULL);
+
+void prefixGameDir(char *dir, size_t dir_len);
+int findPrefixDir(char *dir, size_t dir_len);
 
 const char *getStorageDir(int dev);
 const char *getRootDir();
@@ -89,5 +113,8 @@ const char *getFullPath(const char *name);
 uint32_t getFileType(const char *name);
 
 #define COEFF_DIR "filters"
+#define GAMMA_DIR "gamma"
+#define GAMES_DIR "games"
+#define CIFS_DIR "cifs"
 
 #endif

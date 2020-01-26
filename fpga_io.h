@@ -4,9 +4,6 @@
 #ifndef FPGAIO_H
 #define FPGAIO_H
 
-#define DISKLED_ON  fpga_set_led(1)
-#define DISKLED_OFF fpga_set_led(0)
-
 #define BUTTON_OSD  1
 #define BUTTON_USR  2
 
@@ -18,6 +15,7 @@ int fpga_gpi_read();
 
 void fpga_set_led(uint32_t on);
 int  fpga_get_buttons();
+int fpga_get_io_type();
 
 void fpga_core_reset(int reset);
 void fpga_core_write(uint32_t offset, uint32_t value);
@@ -28,10 +26,10 @@ int is_fpga_ready(int quick);
 int fpga_get_fio_size();
 int fpga_get_io_version();
 
-int fpga_load_rbf(const char *name, const char *cfg = NULL);
+int fpga_load_rbf(const char *name, const char *cfg = NULL, const char *xml=NULL);
 
 void reboot(int cold);
-void app_restart(const char *path);
+void app_restart(const char *path, const char *xml=NULL);
 char *getappname();
 
 #endif

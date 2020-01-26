@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include <stdbool.h> 
+#include <stdbool.h>
 #include <limits.h>
 #include <ctype.h>
 #include <vector>
@@ -51,7 +51,7 @@ static char cheat_zip[1024] = {};
 
 int find_by_crc(uint32_t romcrc)
 {
-	sprintf(cheat_zip, "%s/cheats/%s", getRootDir(), HomeDir);
+	sprintf(cheat_zip, "%s/cheats/%s", getRootDir(), CoreName);
 	DIR *d = opendir(cheat_zip);
 	if (!d)
 	{
@@ -108,7 +108,7 @@ void cheats_init(const char *rom_path, uint32_t romcrc)
 		const char *rom_name = strrchr(rom_path, '/');
 		if (rom_name)
 		{
-			sprintf(cheat_zip, "%s/cheats/%s%s", getRootDir(), HomeDir, rom_name);
+			sprintf(cheat_zip, "%s/cheats/%s%s", getRootDir(), CoreName, rom_name);
 			char *p = strrchr(cheat_zip, '.');
 			if (p) *p = 0;
 			strcat(cheat_zip, ".zip");
@@ -247,7 +247,7 @@ void cheats_scroll_name()
 	name[1] = cheats[iSelectedEntry].enabled ? 0x1a : 0x1b;
 	name[2] = 32;
 	strcpy(name + 3, cheats[iSelectedEntry].name);
-		
+
 	len = strlen(name); // get name length
 	if (len > 3 && !strncasecmp(name + len - 3, ".gg", 3)) len -= 3;
 
@@ -352,22 +352,9 @@ static void cheats_send()
 
 	user_io_set_index(255);
 
-	// prepare transmission
-	EnableFpga();
-	spi8(UIO_FILE_TX);
-	spi8(0xff);
-	DisableFpga();
-
-	EnableFpga();
-	spi8(UIO_FILE_TX_DAT);
-	spi_write(buff, pos ? pos : 2, fpga_get_fio_size());
-	DisableFpga();
-
-	// signal end of transmission
-	EnableFpga();
-	spi8(UIO_FILE_TX);
-	spi8(0x00);
-	DisableFpga();
+	user_io_set_download(1);
+	user_io_file_tx_write(buff, pos ? pos : 2);
+	user_io_set_download(0);
 }
 
 void cheats_toggle()

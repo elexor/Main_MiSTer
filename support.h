@@ -19,3 +19,15 @@
 
 // SNES  support
 #include "support/snes/snes.h"
+
+// NeoGeo  support
+#include "support/neogeo/loader.h"
+
+// Arcade support
+#include "support/arcade/romutils.h"
+
+// MEGACD  support
+#include "support/megacd/megacd.h"
+
+// C64 support
+#include "support/c64/c64.h"
